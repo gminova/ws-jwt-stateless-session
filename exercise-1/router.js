@@ -53,6 +53,36 @@ module.exports = (req, res) => {
       res.setHeader("Location", req.headers.referer || "/");
       res.end();
       break;
+    case "GET /auth_check":
+      // Parse the cookies on the request
+      let cookies = cookie.parse(req.headers.cookie || "");
+
+      // Get the visitor name set in the cookie
+      let loggedIn = cookies.loggedIn;
+      console.log(loggedIn)
+      if (typeof loggedIn != "undefined") {
+        let decoded = jwt.verify(loggedIn, "!some_super_secret_string!");
+        if (decoded && decoded.user === "Gigi") {
+          const message = `<h1 style='font-size: 10vh; text-align: center;'>Welcome, back, ${
+            decoded.user
+          }!</h1>`;
+          res.writeHead(200, {
+            "Content-type": "text/html",
+            "Content-Length": message.length
+          });
+          res.end(message);
+        }
+      } else {
+        const message =
+          "<h1 style='font-size: 10vh; text-align: center;'>Hello, new user!</h1>";
+        res.writeHead(401, {
+          "Content-type": "text/html",
+          "Content-Length": message.length
+        });
+        res.end(message);
+      }
+      break;
+
     default:
       res.writeHead(404, {
         "Content-Type": "text/html",
