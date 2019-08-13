@@ -54,12 +54,24 @@ module.exports = (req, res) => {
       res.end();
       break;
     case "GET /auth_check":
+      const send401 = () => {
+        const message =
+          "<h1 style='font-size: 10vh; text-align: center;'>Hello, new user!</h1>";
+        res.writeHead(401, {
+          "Content-type": "text/html",
+          "Content-Length": message.length
+        });
+        res.end(message);
+      };
       // Parse the cookies on the request
-      let cookies = cookie.parse(req.headers.cookie || "");
-      // Get the visitor name set in the cookie
-      let loggedIn = cookies.loggedIn;
-      if (typeof loggedIn != "undefined") {
-        let decoded = jwt.verify(loggedIn, "!some_super_secret_string!");
+      const cookies = cookie.parse(req.headers.cookie || "");
+      if (!cookies || !cookies.loggedIn) {
+        return send401();
+      } else {
+        let decoded = jwt.verify(
+          cookies.loggedIn,
+          "!some_super_secret_string!"
+        );
         if (decoded && decoded.user === "Gigi") {
           const message = `<h1 style='font-size: 10vh; text-align: center;'>Welcome, back, ${
             decoded.user
@@ -69,16 +81,11 @@ module.exports = (req, res) => {
             "Content-Length": message.length
           });
           res.end(message);
+        } else {
+          send401();
         }
-      } else {
-        const message =
-          "<h1 style='font-size: 10vh; text-align: center;'>Hello, new user!</h1>";
-        res.writeHead(401, {
-          "Content-type": "text/html",
-          "Content-Length": message.length
-        });
-        res.end(message);
       }
+
       break;
 
     default:
