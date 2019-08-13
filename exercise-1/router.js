@@ -23,7 +23,8 @@ module.exports = (req, res) => {
         { algorithm: "HS256" },
         (err, token) => {
           if (err) {
-            const message = "<h1 style='font-size: 10vh; text-align: center;'>400, Bad Request :'(</h1>";
+            const message =
+              "<h1 style='font-size: 10vh; text-align: center;'>400, Bad Request :'(</h1>";
             res.writeHead(400, {
               "Content-type": "text/html",
               "Content-Length": message.length
@@ -32,7 +33,7 @@ module.exports = (req, res) => {
           } else {
             res.setHeader(
               "Set-Cookie",
-              cookie.serialize("logged-in", token, {
+              cookie.serialize("loggedIn", token, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 24 * 7 // 1 week
               })
@@ -43,7 +44,15 @@ module.exports = (req, res) => {
             res.end();
           }
         }
-      ); break;
+      );
+      break;
+    case "POST /logout":
+      res.setHeader("Set-Cookie", "loggedIn=0; Max-Age=0;");
+      // Redirect back after setting cookie
+      res.statusCode = 302;
+      res.setHeader("Location", req.headers.referer || "/");
+      res.end();
+      break;
     default:
       res.writeHead(404, {
         "Content-Type": "text/html",
