@@ -56,10 +56,8 @@ module.exports = (req, res) => {
     case "GET /auth_check":
       // Parse the cookies on the request
       let cookies = cookie.parse(req.headers.cookie || "");
-
       // Get the visitor name set in the cookie
       let loggedIn = cookies.loggedIn;
-      console.log(loggedIn)
       if (typeof loggedIn != "undefined") {
         let decoded = jwt.verify(loggedIn, "!some_super_secret_string!");
         if (decoded && decoded.user === "Gigi") {
